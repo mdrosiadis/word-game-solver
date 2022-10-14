@@ -19,21 +19,23 @@ class WordGame:
         self.words = words
         self.board_width = len(board[0])
         self.board_height = len(board)
-
         self.puzzle_rep = self._build_puzzle_rep(board)
         self.board_tree = Tree(self.puzzle_rep)
 
     def _build_puzzle_rep(self, board):
-        puzzle_rep = {("H", i): word for i, word in enumerate(board)} | \
-                     {("V", i): "".join(word[i] for word in board) for i in range(self.board_width)} | \
-                     {("DL", i): "".join(word[j] for j, word in enumerate(board[i:])) for i in range(self.board_height)} | \
-                     {("DT", i): "".join(word[i + j] for j, word in enumerate(board[:self.board_width - i])) for i in
-                      range(1, self.board_width)} | \
-                     {("DTB", i): "".join(word[i - j] for j, word in enumerate(board[:i + 1])) for i in
-                      range(1, self.board_width)} | \
-                     {("DR", i): "".join(word[-(j + 1)] for j, word in enumerate(board[i:])) for i in
-                      range(1, self.board_height)}
+        horizontal = {("H", i): word for i, word in enumerate(board)}
+        vertical = {("V", i): "".join(word[i] for word in board) for i in range(self.board_width)}
+        dl = {("DL", i): "".join(word[j] for j, word in enumerate(board[i:])) for i in range(self.board_height)}
+        dt = {("DT", i): "".join(word[i + j] for j, word in enumerate(board[:self.board_width - i])) for i in range(1, self.board_width)}
+        dtb = {("DTB", i): "".join(word[i - j] for j, word in enumerate(board[:i + 1])) for i in range(1, self.board_width)}
+        dr = {("DR", i): "".join(word[-(j + 1)] for j, word in enumerate(board[i:])) for i in range(1, self.board_height)}
 
+        puzzle_rep = horizontal.copy()
+        puzzle_rep.update(vertical)
+        puzzle_rep.update(dl)
+        puzzle_rep.update(dt)
+        puzzle_rep.update(dtb)
+        puzzle_rep.update(dr)
         return puzzle_rep
 
     def find_word(self, word):
